@@ -1,142 +1,112 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Image Slider</title>
-  <style>
-    #slider {
-      width: 100%;
-      max-width: 500px;
-      margin: auto;
-      overflow: hidden;
-      position: relative;
-      text-align: center;
-      border: 1px solid black;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: aliceblue;
+        }
+        .container{
+            width: 600px;
+            height: 400px;
+            position: relative;
+            overflow: hidden;
+            margin-top: 100px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+        #slider{
+            display: flex;
+            flex-grow: 0;
+            transition: transform 0.5s ease;
+        }
+       button{
+        padding: 5px;
+        cursor: pointer;
+       }
+       button:hover{
+        background-color: #ddd;
+        transition: 0.2s;
+        transform: scale(1.1);
+       }
+       #prev{
+        position: absolute;
+        left: 0;
+        top: 50%;
+       }
+       #next{
+        position: absolute;
+        right: 0;
+        top: 50%;
+       }
+       .slide{
+        width: 100%;
+        height: 100%;
+       }
 
-    #slides {
-      display: flex;
-      transition: transform 0.5s ease-in-out;
-    }
-
-    .slide {
-      width: 100%;
-      flex-shrink: 0;
-    }
-
-    .controls {
-      position: absolute;
-      top: 10px;
-      left: 0;
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      padding: 0 10px;
-      box-sizing: border-box;
-    }
-
-    button {
-      padding: 8px 16px;
-      font-size: 16px;
-    }
-
-    .dots {
-      display: flex;
-      justify-content: center;
-      gap: 8px;
-      margin: 10px 0;
-    }
-
-    .dot {
-      height: 12px;
-      width: 12px;
-      border-radius: 50%;
-      background-color: #ccc;
-      display: inline-block;
-      cursor: pointer;
-    }
-
-    .dot.active {
-      background-color: #333;
-    }
-  </style>
+    </style>
 </head>
 <body>
-  <div id="slider">
-    <div class="controls">
-      <button onclick="prev()">Prev</button>
-      <button onclick="next()">Next</button>
+    <div class="container">
+        <div id="slider">
+            <img class="slide" src="https://picsum.photos/id/237/600/400" alt="">
+            <img class="slide" src="https://picsum.photos/id/238/600/400" alt="">
+            <img class="slide" src="https://picsum.photos/id/239/600/400" alt="">
+            <img class="slide" src="https://picsum.photos/id/231/600/400" alt="">
+            <img class="slide" src="https://picsum.photos/id/232/600/400" alt="">
+        </div>
+        <button id="prev">◀</button>
+        <button id="next">▶</button>
     </div>
 
-    <div id="slides">
-      <img class="slide" src="https://picsum.photos/id/237/500/300" alt="">
-      <img class="slide" src="https://picsum.photos/id/238/500/300" alt="">
-      <img class="slide" src="https://picsum.photos/id/239/500/300" alt="">
-      <img class="slide" src="https://picsum.photos/id/240/500/300" alt="">
-      <img class="slide" src="https://picsum.photos/id/241/500/300" alt="">
-    </div>
+    <script>
+        const slider = document.getElementById('slider');
+        const slides = document.querySelectorAll('.slide');
+        const next = document.getElementById('next');
+        const prev = document.getElementById('prev');
+        const container = document.querySelector('.container')
 
-    <div class="dots" id="dots"></div>
-  </div>
+        container.addEventListener('mouseenter', stopAutoPlay)
+        container.addEventListener('mouseleave', startAutoPlay)
 
-  <script>
-    const slides = document.querySelectorAll('.slide');
-    const slider = document.querySelector('#slides');
-    const sliderContainer = document.querySelector('#slider');
-    const dotsContainer = document.querySelector('#dots');
-    let current = 0;
-    let interval;
+        let index = 0;
+        let interval = null;
 
-    function createDots() {
-      slides.forEach((_, index) => {
-        const dot = document.createElement('span');
-        dot.classList.add('dot');
-        dot.addEventListener('click', () => {
-          current = index;
-          moveSlides();
-        });
-        dotsContainer.appendChild(dot);
-      });
-    }
+        function moveSlides(i){
+            index = (i + slides.length) % slides.length;
+            slider.style.transform = `translateX(-${index * 100}%)`;
+        }
 
-    function updateDots() {
-      const dots = document.querySelectorAll('.dot');
-      dots.forEach(dot => dot.classList.remove('active'));
-      if (dots[current]) dots[current].classList.add('active');
-    }
+        function startAutoPlay(){
+            interval = setInterval(()=>{
+                moveSlides(index + 1)
+            },2000)
+        }
 
-    function moveSlides(){
-      const width = sliderContainer.clientWidth;
-      slider.style.transform = `translateX(-${current * width}px)`;
-      updateDots();
-    }
+        function stopAutoPlay(){
+            clearInterval(interval)
+        }
 
-    function next(){
-      current = (current + 1) % slides.length;
-      moveSlides();
-    }
 
-    function prev(){
-      current = (current - 1 + slides.length) % slides.length;
-      moveSlides();
-    }
+        next.addEventListener('click', ()=>{
+            moveSlides(index + 1);
+            stopAutoPlay();
+            startAutoPlay();
 
-    function startAutoPlay(){
-      interval = setInterval(next, 3000);
-    }
+        })
 
-    function stopAutoPlay(){
-      clearInterval(interval);
-    }
+        prev.addEventListener('click', ()=>{
+            moveSlides(index - 1);
+            stopAutoPlay();
+            startAutoPlay();
 
-    createDots();
-    updateDots();
-    startAutoPlay();
+        })
 
-    sliderContainer.addEventListener('mouseenter', stopAutoPlay);
-    sliderContainer.addEventListener('mouseleave', startAutoPlay);
-    window.addEventListener('resize', moveSlides); // Responsive fix
-  </script>
+        startAutoPlay();
+    </script>
 </body>
 </html>
